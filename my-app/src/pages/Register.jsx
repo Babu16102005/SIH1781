@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerUser } from '../utils/registerUser'
 import { useAuth } from '../contexts/AuthContext'
-import { authAPI } from '../utils/api'
 import './Auth.css'
 
 const Register = () => {
@@ -37,20 +35,14 @@ const Register = () => {
     setError('')
 
     try {
-      await registerUser(formData.email, formData.password, formData.full_name, {
-        username: formData.username,
-        age_range: formData.age_range || '',
-        current_job_role: formData.current_job_role || '',
-        industry: formData.industry || '',
-        educational_background: formData.educational_background || '',
-        years_of_experience: formData.years_of_experience || '',
-      })
+      // Use backend authentication directly
+      const result = await register(formData)
 
-      // Get backend JWT so protected API calls work
-      const res = await authAPI.login({ email: formData.email })
-      localStorage.setItem('token', res.data.access_token)
-
-      navigate('/dashboard')
+      if (result.success) {
+        navigate('/dashboard')
+      } else {
+        setError(result.error)
+      }
     } catch (err) {
       setError(err.message)
     } finally {

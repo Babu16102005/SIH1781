@@ -3,12 +3,13 @@ import axios from 'axios'
 
 // Optional Firebase imports (loaded only when enabled)
 let useFirebase = false
-try {
-  // Vite env flag to toggle Firebase auth mode
-  useFirebase = import.meta?.env?.VITE_USE_FIREBASE === 'true'
-} catch (_) {
-  useFirebase = false
-}
+// Force backend authentication for now to fix 403 error
+// try {
+//   // Vite env flag to toggle Firebase auth mode
+//   useFirebase = import.meta?.env?.VITE_USE_FIREBASE === 'true'
+// } catch (_) {
+//   useFirebase = false
+// }
 
 let firebaseApi = null
 if (useFirebase) {
