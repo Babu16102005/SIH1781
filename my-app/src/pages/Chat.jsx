@@ -58,7 +58,8 @@ const Chat = () => {
           return updated
         })
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Error during streaming:', error)
       setMessages((m) => {
         const updated = [...m]
         for (let i = updated.length - 1; i >= 0; i--) {
