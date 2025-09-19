@@ -10,12 +10,15 @@ from database import get_db, engine, Base
 from models import User, Assessment, CareerRecommendation, SkillEvaluation
 from schemas import (
     UserCreate, UserResponse, AssessmentCreate, AssessmentResponse,
-    CareerRecommendationResponse, SkillEvaluationCreate, SkillEvaluationResponse
+    CareerRecommendationResponse, SkillEvaluationCreate, SkillEvaluationResponse,
+    LoginRequest
 )
-from services import (
-    UserService, AssessmentService, RecommendationService, 
-    SkillEvaluationService, GeminiService
-)
+# Import services from their modules
+from services.user_service import UserService
+from services.assessment_service import AssessmentService
+from services.recommendation_service import RecommendationService
+from services.skill_evaluation_service import SkillEvaluationService
+from services.gemini_service import GeminiService
 
 load_dotenv()
 
@@ -60,7 +63,7 @@ async def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     return user_service.create_user(user_data)
 
 @app.post("/api/users/login")
-async def login_user(user_data: UserCreate, db: Session = Depends(get_db)):
+async def login_user(user_data: LoginRequest, db: Session = Depends(get_db)):
     user_service = UserService(db)
     return user_service.authenticate_user(user_data)
 
@@ -86,6 +89,20 @@ async def get_assessment(
 ):
     assessment_service = AssessmentService(db)
     return assessment_service.get_assessment(assessment_id, current_user.id)
+
+# List assessments for current user (used by dashboard)
+@app.get("/api/assessments", response_model=list[AssessmentResponse])
+async def list_assessments(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    assessments = (
+        db.query(Assessment)
+        .filter(Assessment.user_id == current_user.id)
+        .order_by(Assessment.completed_at.desc())
+        .all()
+    )
+    return [AssessmentResponse.from_orm(a) for a in assessments]
 
 # Skill evaluation endpoints
 @app.post("/api/skills/evaluate", response_model=SkillEvaluationResponse)

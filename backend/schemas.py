@@ -83,7 +83,7 @@ class CareerRecommendationResponse(BaseModel):
 # Login schema
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: str
+    password: Optional[str] = None
 
 class LoginResponse(BaseModel):
     access_token: str

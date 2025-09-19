@@ -10,7 +10,11 @@ class AssessmentService:
     
     def create_assessment(self, assessment_data: AssessmentCreate, user_id: int) -> AssessmentResponse:
         # Calculate scores based on assessment type
-        scores = self.calculate_scores(assessment_data.assessment_type, assessment_data.answers)
+        scores = self.calculate_scores(
+            assessment_data.assessment_type,
+            assessment_data.answers,
+            assessment_data.questions,
+        )
         total_score = sum(scores.values()) / len(scores) if scores else 0
         
         db_assessment = Assessment(
@@ -38,12 +42,17 @@ class AssessmentService:
         
         return AssessmentResponse.from_orm(assessment)
     
-    def calculate_scores(self, assessment_type: str, answers: Dict[str, Any]) -> Dict[str, float]:
+    def calculate_scores(
+        self,
+        assessment_type: str,
+        answers: Dict[str, Any],
+        questions: Dict[str, Any] | list | None = None,
+    ) -> Dict[str, float]:
         """Calculate scores based on assessment type and answers"""
         scores = {}
         
         if assessment_type == "aptitude":
-            scores = self.calculate_aptitude_scores(answers)
+            scores = self.calculate_aptitude_scores(answers, questions)
         elif assessment_type == "interest":
             scores = self.calculate_interest_scores(answers)
         elif assessment_type == "personality":
@@ -51,29 +60,49 @@ class AssessmentService:
         
         return scores
     
-    def calculate_aptitude_scores(self, answers: Dict[str, Any]) -> Dict[str, float]:
-        """Calculate aptitude test scores"""
+    def calculate_aptitude_scores(self, answers: Dict[str, Any], questions: Dict[str, Any] | list | None) -> Dict[str, float]:
+        """Calculate aptitude test scores using provided question categories.
+        answers: mapping of question_id -> selected_option_index (int)
+        questions: list of question dicts with id, category, correct index
+        """
         categories = {
-            "logical_reasoning": 0,
-            "verbal_ability": 0,
-            "numerical_ability": 0,
-            "spatial_reasoning": 0,
-            "analytical_thinking": 0
+            "logical_reasoning": 0.0,
+            "verbal_ability": 0.0,
+            "numerical_ability": 0.0,
+            "spatial_reasoning": 0.0,
+            "analytical_thinking": 0.0,
         }
-        
-        # Sample scoring logic - replace with actual aptitude test scoring
-        for question_id, answer in answers.items():
-            if "logical" in question_id.lower():
-                categories["logical_reasoning"] += float(answer) if isinstance(answer, (int, float)) else 0
-            elif "verbal" in question_id.lower():
-                categories["verbal_ability"] += float(answer) if isinstance(answer, (int, float)) else 0
-            elif "numerical" in question_id.lower():
-                categories["numerical_ability"] += float(answer) if isinstance(answer, (int, float)) else 0
-            elif "spatial" in question_id.lower():
-                categories["spatial_reasoning"] += float(answer) if isinstance(answer, (int, float)) else 0
-            elif "analytical" in question_id.lower():
-                categories["analytical_thinking"] += float(answer) if isinstance(answer, (int, float)) else 0
-        
+
+        if not isinstance(questions, list):
+            # Fallback: no questions metadata; return zeros
+            return categories
+
+        # Build quick lookup by id
+        id_to_q = {str(q.get("id")): q for q in questions}
+        total_by_cat: Dict[str, int] = {k: 0 for k in categories.keys()}
+        correct_by_cat: Dict[str, int] = {k: 0 for k in categories.keys()}
+
+        for qid, selected in answers.items():
+            q = id_to_q.get(str(qid))
+            if not q:
+                continue
+            cat = q.get("category")
+            if cat not in categories:
+                continue
+            total_by_cat[cat] += 1
+            try:
+                selected_index = int(selected)
+            except Exception:
+                selected_index = -1
+            if selected_index == q.get("correct"):
+                correct_by_cat[cat] += 1
+
+        # Convert to percentage per category
+        for cat in categories.keys():
+            total = total_by_cat[cat]
+            correct = correct_by_cat[cat]
+            categories[cat] = round((correct / total) * 100.0, 2) if total > 0 else 0.0
+
         return categories
     
     def calculate_interest_scores(self, answers: Dict[str, Any]) -> Dict[str, float]:

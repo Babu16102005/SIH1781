@@ -11,8 +11,8 @@ const AptitudeTest = () => {
   const [testCompleted, setTestCompleted] = useState(false)
   const [scores, setScores] = useState(null)
 
-  // Sample aptitude test questions
-  const questions = [
+  // Static question bank (will be shuffled into state on mount)
+  const questionBank = [
     {
       id: 1,
       category: "logical_reasoning",
@@ -49,6 +49,20 @@ const AptitudeTest = () => {
       correct: 1
     }
   ]
+
+  const [questions, setQuestions] = useState([])
+
+  // Shuffle questions once on mount
+  useEffect(() => {
+    const shuffled = [...questionBank]
+      .map(q => ({ ...q }))
+      .sort(() => Math.random() - 0.5)
+    setQuestions(shuffled)
+    setCurrentQuestion(0)
+    setAnswers({})
+    setTestCompleted(false)
+    setScores(null)
+  }, [])
 
   const handleAnswerSelect = (questionId, answerIndex) => {
     setAnswers({
@@ -137,7 +151,7 @@ const AptitudeTest = () => {
   }
 
   const currentQ = questions[currentQuestion]
-  const progress = ((currentQuestion + 1) / questions.length) * 100
+  const progress = questions.length > 0 ? ((currentQuestion + 1) / questions.length) * 100 : 0
 
   return (
     <div className="aptitude-test">
@@ -147,6 +161,7 @@ const AptitudeTest = () => {
           <p>Test your cognitive abilities across different domains</p>
         </div>
 
+        {questions.length > 0 && (
         <div className="test-progress">
           <div className="progress-bar">
             <div 
@@ -156,8 +171,10 @@ const AptitudeTest = () => {
           </div>
           <p>Question {currentQuestion + 1} of {questions.length}</p>
         </div>
+        )}
 
         <div className="test-content">
+          {currentQ && (
           <div className="question-card">
             <div className="question-header">
               <span className="question-category">
@@ -184,6 +201,7 @@ const AptitudeTest = () => {
               ))}
             </div>
           </div>
+          )}
 
           <div className="test-navigation">
             <button 
@@ -197,7 +215,7 @@ const AptitudeTest = () => {
             <button 
               className="btn btn-primary"
               onClick={handleNext}
-              disabled={answers[currentQ.id] === undefined}
+              disabled={!currentQ || answers[currentQ.id] === undefined}
             >
               {currentQuestion === questions.length - 1 ? 'Submit Test' : 'Next'}
             </button>

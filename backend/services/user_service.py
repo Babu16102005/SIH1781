@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import User
-from schemas import UserCreate, UserResponse
+from schemas import UserCreate, UserResponse, LoginRequest
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
@@ -38,10 +38,19 @@ class UserService:
         
         return UserResponse.from_orm(db_user)
     
-    def authenticate_user(self, user_data: UserCreate) -> dict:
+    def authenticate_user(self, user_data: LoginRequest) -> dict:
         user = self.db.query(User).filter(User.email == user_data.email).first()
         if not user:
-            raise ValueError("Invalid email or password")
+            # Auto-register lightweight user on first login attempt by email (no password)
+            # This simplifies demo/dev flow; for production require password.
+            temp_user = User(
+                email=user_data.email,
+                full_name=user_data.email.split('@')[0],
+            )
+            self.db.add(temp_user)
+            self.db.commit()
+            self.db.refresh(temp_user)
+            user = temp_user
         
         # For simplicity, we'll use email as password in this demo
         # In production, implement proper password hashing

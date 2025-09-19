@@ -21,6 +21,8 @@ if __name__ == "__main__":
     print(f"Server will be available at: http://{host}:{port}")
     print(f"API Documentation: http://{host}:{port}/docs")
     print(f"Debug mode: {debug}")
+    from database import DATABASE_URL
+    print(f"Database URL: {DATABASE_URL}")
     
     # Run the server
     uvicorn.run(
