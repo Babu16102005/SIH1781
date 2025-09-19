@@ -19,7 +19,7 @@ const Dashboard = () => {
     if (!token) return
     fetchDashboardData()
   }, [])
-
+  
   const fetchDashboardData = async () => {
     try {
       // Fetch user's assessments and recommendations
