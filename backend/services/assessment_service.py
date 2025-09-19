@@ -29,7 +29,7 @@ class AssessmentService:
         self.db.commit()
         self.db.refresh(db_assessment)
         
-        return AssessmentResponse.from_orm(db_assessment)
+        return AssessmentResponse.model_validate(db_assessment)
     
     def get_assessment(self, assessment_id: int, user_id: int) -> AssessmentResponse:
         assessment = self.db.query(Assessment).filter(
@@ -40,7 +40,7 @@ class AssessmentService:
         if not assessment:
             raise ValueError("Assessment not found")
         
-        return AssessmentResponse.from_orm(assessment)
+        return AssessmentResponse.model_validate(assessment)
     
     def calculate_scores(
         self,

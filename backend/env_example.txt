@@ -1,5 +1,5 @@
 # Database Configuration
-DATABASE_URL=oracle+oracledb://username:password@localhost:1521/xe
+# DATABASE_URL=oracle+oracledb://username:password@localhost:1521/xe
 
 # JWT Configuration
 SECRET_KEY=4551db4eb9b7e2fc6d01ac8baa71de21d20ede822e38123f4836ef385f11ae5a

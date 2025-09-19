@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token])
 
-  const login = async (email, password) => {
+  const login = async (email) => {
     if (useFirebase && firebaseApi) {
       try {
         const { getFirebaseAuth, signInWithEmailAndPassword } = firebaseApi
@@ -106,8 +106,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await axios.post('http://localhost:8000/api/users/login', {
-        email,
-        password
+        email
       })
       
       const { access_token, user: userData } = response.data
@@ -170,6 +169,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    token,
     login,
     register,
     logout,

@@ -36,7 +36,7 @@ class UserService:
         self.db.commit()
         self.db.refresh(db_user)
         
-        return UserResponse.from_orm(db_user)
+        return UserResponse.model_validate(db_user)
     
     def authenticate_user(self, user_data: LoginRequest) -> dict:
         user = self.db.query(User).filter(User.email == user_data.email).first()
@@ -62,7 +62,7 @@ class UserService:
         return {
             "access_token": access_token,
             "token_type": "bearer",
-            "user": UserResponse.from_orm(user)
+            "user": UserResponse.model_validate(user)
         }
     
     def create_access_token(self, data: dict, expires_delta: timedelta = None):

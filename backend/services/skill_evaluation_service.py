@@ -28,7 +28,7 @@ class SkillEvaluationService:
         self.db.commit()
         self.db.refresh(db_evaluation)
         
-        return SkillEvaluationResponse.from_orm(db_evaluation)
+        return SkillEvaluationResponse.model_validate(db_evaluation)
     
     def analyze_skill_gaps(self, skill_data: SkillEvaluationCreate) -> Dict[str, Any]:
         """Analyze skill gaps based on current skills"""

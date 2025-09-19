@@ -5,8 +5,7 @@ import './Auth.css'
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -26,7 +25,7 @@ const Login = () => {
     setLoading(true)
     setError('')
 
-    const result = await login(formData.email, formData.password)
+    const result = await login(formData.email)
     
     if (result.success) {
       navigate('/dashboard')
@@ -55,21 +54,15 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
+              placeholder="Enter your email to get started"
             />
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder="Enter your password"
-            />
+            <p className="auth-info">
+              <strong>Quick Start:</strong> Just enter your email address to get started. 
+              No password required for this demo!
+            </p>
           </div>
           
           <button 

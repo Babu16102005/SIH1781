@@ -71,7 +71,7 @@ class RecommendationService:
         self.db.commit()
         self.db.refresh(db_recommendation)
         
-        return CareerRecommendationResponse.from_orm(db_recommendation)
+        return CareerRecommendationResponse.model_validate(db_recommendation)
     
     def get_user_recommendations(self, user_id: int) -> List[CareerRecommendationResponse]:
         """Get all recommendations for a user"""
@@ -79,7 +79,7 @@ class RecommendationService:
             CareerRecommendation.user_id == user_id
         ).order_by(CareerRecommendation.generated_at.desc()).all()
         
-        return [CareerRecommendationResponse.from_orm(rec) for rec in recommendations]
+        return [CareerRecommendationResponse.model_validate(rec) for rec in recommendations]
     
     def calculate_career_match_score(
         self, 

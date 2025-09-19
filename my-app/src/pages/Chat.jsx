@@ -1,17 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import './Chat.css'
 
 const Chat = () => {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user, token } = useAuth()
+  const navigate = useNavigate()
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const streamRef = useRef(null)
 
   useEffect(() => {
-    if (!isAuthenticated) return
-  }, [isAuthenticated])
+    if (!isAuthenticated || !token) {
+      navigate('/login')
+      return
+    }
+  }, [isAuthenticated, token, navigate])
 
   const sendMessage = async (e) => {
     e.preventDefault()
@@ -27,15 +32,20 @@ const Chat = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(localStorage.getItem('token')
-            ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ message: userMsg.content }),
       })
 
-      if (!response.ok || !response.body) {
-        throw new Error('Failed to start stream')
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Authentication required. Please log in again.')
+        }
+        throw new Error(`Failed to start stream: ${response.status} ${response.statusText}`)
+      }
+      
+      if (!response.body) {
+        throw new Error('No response body received')
       }
 
       const reader = response.body.getReader()
@@ -76,9 +86,30 @@ const Chat = () => {
     }
   }
 
+  if (!isAuthenticated || !token) {
+    return (
+      <div className="chat">
+        <div className="chat-window">
+          <div className="msg assistant">
+            <div className="bubble">Please log in to access the chat feature.</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="chat">
+      <div className="chat-header">
+        <h2>AI Career Assistant</h2>
+        <p>Ask me anything about careers, skills, or job opportunities!</p>
+      </div>
       <div className="chat-window">
+        {messages.length === 0 && (
+          <div className="msg assistant">
+            <div className="bubble">Hello! I'm your AI career assistant. How can I help you today?</div>
+          </div>
+        )}
         {messages.map((m, idx) => (
           <div key={idx} className={`msg ${m.role}`}>
             <div className="bubble">{m.content}</div>
@@ -93,7 +124,7 @@ const Chat = () => {
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
         />
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading || !input.trim()}>
           {loading ? 'Generating...' : 'Send'}
         </button>
       </form>

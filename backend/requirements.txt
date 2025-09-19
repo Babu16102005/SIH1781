@@ -1,16 +1,17 @@
-fastapi>=0.110,<1
-uvicorn>=0.24,<1
-sqlalchemy>=2.0,<3
-pydantic>=2.0,<3
-python-multipart>=0.0.6,<1
-python-jose[cryptography]>=3.3.0,<4
-passlib[bcrypt]>=1.7.4,<2
-python-dotenv>=1.0.0,<2
-email-validator>=2.0,<3
+fastapi>=0.110.0,<1.0.0
+uvicorn[standard]>=0.24.0,<1.0.0
+sqlalchemy>=2.0.0,<3.0.0
+pydantic>=2.0.0,<3.0.0
+python-multipart>=0.0.6,<1.0.0
+python-jose[cryptography]>=3.3.0,<4.0.0
+passlib[bcrypt]>=1.7.4,<2.0.0
+python-dotenv>=1.0.0,<2.0.0
+email-validator>=2.0.0,<3.0.0
 
 # AI integration required by `services/gemini_service.py`
-google-generativeai==0.3.2
-# Heavy scientific stack moved to optional to avoid native builds on Windows
-# pandas==2.1.4
-# numpy==1.26.4
-# scikit-learn==1.3.2
+google-generativeai>=0.3.0,<1.0.0
+
+# Optional scientific stack for advanced analytics
+# pandas>=2.1.0,<3.0.0
+# numpy>=1.26.0,<2.0.0
+# scikit-learn>=1.3.0,<2.0.0

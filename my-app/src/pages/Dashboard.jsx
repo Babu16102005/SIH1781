@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import axios from 'axios'
+import { assessmentAPI, recommendationAPI } from '../utils/api'
 import './Dashboard.css'
 
 const Dashboard = () => {
-  const { user } = useAuth()
+  const { user, token, isAuthenticated } = useAuth()
   const [stats, setStats] = useState({
     assessmentsCompleted: 0,
     recommendationsGenerated: 0,
@@ -15,17 +15,16 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) return
+    if (!isAuthenticated || !token) return
     fetchDashboardData()
-  }, [])
+  }, [isAuthenticated, token])
   
   const fetchDashboardData = async () => {
     try {
       // Fetch user's assessments and recommendations
       const [assessmentsRes, recommendationsRes] = await Promise.all([
-        axios.get('http://localhost:8000/api/assessments'),
-        axios.get('http://localhost:8000/api/recommendations')
+        assessmentAPI.getAll(),
+        recommendationAPI.getAll()
       ])
       
       setStats({
@@ -43,6 +42,19 @@ const Dashboard = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="dashboard">
+        <div className="container">
+          <div className="dashboard-header">
+            <h1>Please log in to access your dashboard</h1>
+            <p>You need to be logged in to view your career guidance data.</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {

@@ -101,6 +101,17 @@
   text-decoration: underline;
 }
 
+.auth-info {
+  background-color: #f0f8ff;
+  color: #0066cc;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 0;
+  border: 1px solid #b3d9ff;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
 @media (max-width: 768px) {
   .auth-container {
     padding: 1rem;
