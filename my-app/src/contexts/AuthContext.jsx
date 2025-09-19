@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }) => {
         })
         return () => unsubscribe()
       } else {
+        // Only check backend auth if we have a token
         if (token) {
           try {
             const response = await axios.get('http://localhost:8000/api/users/profile')
@@ -74,6 +75,7 @@ export const AuthProvider = ({ children }) => {
             console.error('Auth check failed:', error)
             localStorage.removeItem('token')
             setToken(null)
+            setUser(null)
           }
         }
         setLoading(false)

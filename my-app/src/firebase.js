@@ -1,7 +1,6 @@
-// Firebase initialization and exports
 import { initializeApp } from 'firebase/app'
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { getAnalytics } from 'firebase/analytics'
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,23 +12,6 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
-let app
-let auth
-let analytics
-
-export function getFirebaseAuth() {
-  if (!app) {
-    app = initializeApp(firebaseConfig)
-    if (firebaseConfig.measurementId) {
-      try {
-        analytics = getAnalytics(app)
-      } catch (_) {
-        // analytics may not be supported in some environments (e.g., SSR)
-      }
-    }
-    auth = getAuth(app)
-  }
-  return auth
-}
-
-export { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup }
+const app = initializeApp(firebaseConfig)
+export const auth = getAuth(app)
+export const db = getFirestore(app)

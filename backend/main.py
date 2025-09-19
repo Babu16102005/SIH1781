@@ -61,7 +61,11 @@ async def get_current_user(
 @app.post("/api/users/register", response_model=UserResponse)
 async def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     user_service = UserService(db)
-    return user_service.create_user(user_data)
+    try:
+        return user_service.create_user(user_data)
+    except ValueError as e:
+        # e.g., "User with this email already exists"
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/api/users/login")
 async def login_user(user_data: LoginRequest, db: Session = Depends(get_db)):

@@ -62,7 +62,6 @@ class SkillEvaluationResponse(BaseModel):
     
     class Config:
         from_attributes = True
-
 # Career recommendation schemas
 class CareerRecommendationResponse(BaseModel):
     id: int
