@@ -29,14 +29,14 @@ class UserResponse(BaseModel):
 # Assessment schemas
 class AssessmentCreate(BaseModel):
     assessment_type: str
-    questions: Dict[str, Any]
+    questions: Dict[str, Any] | list | None = None
     answers: Dict[str, Any]
 
 class AssessmentResponse(BaseModel):
     id: int
     user_id: int
     assessment_type: str
-    questions: Dict[str, Any]
+    questions: Dict[str, Any] | list | None = None
     scores: Dict[str, Any]
     total_score: float
     completed_at: datetime

@@ -2,12 +2,16 @@ import google.generativeai as genai
 import os
 from typing import Dict, List, Any
 import json
+import logging
 
 class GeminiService:
     def __init__(self):
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            raise ValueError("GEMINI_API_KEY environment variable is required")
+            # Fall back gracefully when no API key is configured
+            logging.warning("GEMINI_API_KEY not set. GeminiService will use fallback recommendations.")
+            self.model = None
+            return
         
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-pro')
@@ -36,6 +40,8 @@ class GeminiService:
         """
         
         try:
+            if self.model is None:
+                raise RuntimeError("Gemini model not configured; using fallback.")
             response = self.model.generate_content(prompt)
             return json.loads(response.text)
         except Exception as e:
@@ -104,6 +110,8 @@ class GeminiService:
         """
         
         try:
+            if self.model is None:
+                raise RuntimeError("Gemini model not configured; using fallback.")
             response = self.model.generate_content(prompt)
             return json.loads(response.text)
         except Exception as e:
@@ -178,6 +186,8 @@ class GeminiService:
         """
         
         try:
+            if self.model is None:
+                raise RuntimeError("Gemini model not configured; using fallback.")
             response = self.model.generate_content(prompt)
             return json.loads(response.text)
         except Exception as e:

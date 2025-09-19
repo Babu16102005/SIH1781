@@ -8,8 +8,8 @@ passlib[bcrypt]>=1.7.4,<2
 python-dotenv>=1.0.0,<2
 email-validator>=2.0,<3
 
-# Optional: AI integrations (install separately if needed)
-# google-generativeai==0.3.2
+# AI integration required by `services/gemini_service.py`
+google-generativeai==0.3.2
 # Heavy scientific stack moved to optional to avoid native builds on Windows
 # pandas==2.1.4
 # numpy==1.26.4
