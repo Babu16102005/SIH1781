@@ -22,7 +22,7 @@ from services.skill_evaluation_service import SkillEvaluationService
 from services.gemini_service import GeminiService
 
 load_dotenv()
-
+os.environ["GRPC_VERBOSITY"] = os.getenv("GRPC_VERBOSITY", "NONE")
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
