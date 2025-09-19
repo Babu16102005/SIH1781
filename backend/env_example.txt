@@ -1,0 +1,15 @@
+# Database Configuration
+DATABASE_URL=oracle+oracledb://username:password@localhost:1521/xe
+
+# JWT Configuration
+SECRET_KEY=your-secret-key-here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Gemini AI Configuration
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# Application Configuration
+DEBUG=True
+HOST=0.0.0.0
+PORT=8000
