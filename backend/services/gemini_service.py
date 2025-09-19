@@ -16,6 +16,26 @@ class GeminiService:
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-pro')
     
+    def stream_chat(self, prompt: str):
+        """Yield model tokens incrementally for real-time chat."""
+        try:
+            if self.model is None:
+                # Fallback streaming when no API key/model configured
+                fallback = "I'm running in fallback mode. Configure GEMINI_API_KEY to enable live AI responses."
+                for chunk in [fallback]:
+                    yield chunk
+                return
+
+            stream = self.model.generate_content(prompt, stream=True)
+            for event in stream:
+                # Each event may contain text; yield as soon as available
+                text = getattr(event, 'text', None)
+                if text:
+                    yield text
+        except Exception as e:
+            # Graceful degradation: send a short error message to the client
+            yield "[Error generating response]"
+    
     def analyze_aptitude_results(self, aptitude_scores: Dict[str, float]) -> Dict[str, Any]:
         """Analyze aptitude test results using Gemini AI"""
         prompt = f"""

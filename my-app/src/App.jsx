@@ -9,6 +9,7 @@ import AptitudeTest from './pages/AptitudeTest'
 import SkillEvaluation from './pages/SkillEvaluation'
 import Recommendations from './pages/Recommendations'
 import Profile from './pages/Profile'
+import Chat from './pages/Chat'
 import './App.css'
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
               <Route path="/skill-evaluation" element={<SkillEvaluation />} />
               <Route path="/recommendations" element={<Recommendations />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/chat" element={<Chat />} />
             </Routes>
           </main>
         </div>

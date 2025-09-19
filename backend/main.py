@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -135,6 +136,25 @@ async def get_recommendations(
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "message": "AI Career Guidance System is running"}
+
+@app.post("/api/chat/stream")
+async def chat_stream(
+    body: dict,
+    current_user: User = Depends(get_current_user),
+):
+    """Stream AI chat responses token-by-token to the client."""
+    prompt = body.get("message", "")
+    if not prompt:
+        raise HTTPException(status_code=400, detail="message is required")
+
+    gemini = GeminiService()
+
+    def token_generator():
+        for chunk in gemini.stream_chat(prompt):
+            # Send Server-Sent Events style or raw text chunks; here we send raw text
+            yield chunk
+
+    return StreamingResponse(token_generator(), media_type="text/plain")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
