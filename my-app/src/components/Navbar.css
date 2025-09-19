@@ -1,11 +1,13 @@
 .navbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1rem 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: rgba(17, 24, 39, 0.5);
+  color: var(--text-0);
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--card-stroke);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   position: sticky;
   top: 0;
   z-index: 1000;
+  backdrop-filter: blur(var(--glass-blur));
 }
 
 .navbar-container {
@@ -19,10 +21,11 @@
 
 .navbar-brand h2 {
   margin: 0;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: white;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-0);
   text-decoration: none;
+  letter-spacing: 0.3px;
 }
 
 .navbar-brand {
@@ -36,17 +39,19 @@
 }
 
 .navbar-link {
-  color: white;
+  color: var(--text-1);
   text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  transition: color 200ms ease, transform 200ms ease, background 200ms ease, box-shadow 200ms ease;
 }
 
 .navbar-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-0);
+  background: rgba(255, 255, 255, 0.06);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
 
 .navbar-user {
@@ -60,19 +65,19 @@
 }
 
 .logout-btn {
-  background-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  border: 0;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-weight: 700;
+  transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .logout-btn:hover {
-  background-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(108, 140, 255, 0.35);
 }
 
 @media (max-width: 768px) {
