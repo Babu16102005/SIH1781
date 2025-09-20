@@ -25,6 +25,7 @@ const Navbar = () => {
               <Link to="/aptitude-test" className="navbar-link">Aptitude Test</Link>
               <Link to="/skill-evaluation" className="navbar-link">Skills</Link>
               <Link to="/recommendations" className="navbar-link">Recommendations</Link>
+              <Link to="/chat" className="navbar-link">Chat</Link>
               <Link to="/profile" className="navbar-link">Profile</Link>
               <div className="navbar-user">
                 <span>Welcome, {user?.full_name}</span>

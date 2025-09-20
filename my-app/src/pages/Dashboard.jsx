@@ -15,6 +15,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) return
     fetchDashboardData()
   }, [])
 

@@ -7,6 +7,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
+    username: '',
     password: '',
     age_range: '',
     current_job_role: '',
@@ -16,9 +17,10 @@ const Register = () => {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  
+
   const { register } = useAuth()
   const navigate = useNavigate()
+
 
   const handleChange = (e) => {
     setFormData({
@@ -32,54 +34,70 @@ const Register = () => {
     setLoading(true)
     setError('')
 
-    const result = await register(formData)
-    
-    if (result.success) {
-      navigate('/login')
-    } else {
-      setError(result.error)
-    }
-    
-    setLoading(false)
-  }
+    try {
+      // Use backend authentication directly
+      const result = await register(formData)
 
+      if (result.success) {
+        navigate('/dashboard')
+      } else {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
     <div className="auth-container">
       <div className="auth-card">
         <h2>Create Your Account</h2>
         <p className="auth-subtitle">Join CareerGuide AI and start your career journey</p>
-        
+
         {error && <div className="error-message">{error}</div>}
-        
+
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="full_name">Full Name</label>
-              <input
-                type="text"
-                id="full_name"
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleChange}
-                required
-                placeholder="Enter your full name"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="email">Email Address</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                placeholder="Enter your email"
-              />
-            </div>
+
+
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              placeholder="Choose a username"
+            />
           </div>
-          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              placeholder="Enter a password"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              placeholder="Enter your email"
+            />
+          </div>
+
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="age_range">Age Range</label>
@@ -97,7 +115,7 @@ const Register = () => {
                 <option value="55+">55+</option>
               </select>
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="years_of_experience">Years of Experience</label>
               <input
@@ -111,7 +129,7 @@ const Register = () => {
               />
             </div>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="current_job_role">Current Job Role</label>
             <input
@@ -123,7 +141,7 @@ const Register = () => {
               placeholder="Enter your current job role"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="industry">Industry</label>
             <select
@@ -142,7 +160,7 @@ const Register = () => {
               <option value="Other">Other</option>
             </select>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="educational_background">Educational Background</label>
             <select
@@ -160,16 +178,16 @@ const Register = () => {
               <option value="Other">Other</option>
             </select>
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="btn btn-primary auth-btn"
             disabled={loading}
           >
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
-        
+
         <div className="auth-footer">
           <p>Already have an account? <Link to="/login">Login here</Link></p>
         </div>

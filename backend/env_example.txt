@@ -9,9 +9,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 # Gemini AI Configuration
 GEMINI_API_KEY=AIzaSyCGyQWcR5nz4ahfCtXb31URojU58WAxUJg
 
+# 
 # Application Configuration
-
-
+# AIzaSyBlPq0u-DUyGpEDAuX9-JX2i7SJmlFqIQI
+# 
 
 
 DEBUG=True
