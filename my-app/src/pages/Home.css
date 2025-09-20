@@ -3,10 +3,13 @@
 }
 
 .hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: radial-gradient(800px 400px at 50% -10%, rgba(108, 140, 255, 0.25), transparent 60%),
+              radial-gradient(800px 400px at 50% 110%, rgba(138, 92, 255, 0.18), transparent 60%),
+              linear-gradient(135deg, rgba(17,24,39,0.6), rgba(17,24,39,0.3));
+  color: var(--text-0);
   padding: 6rem 2rem;
   text-align: center;
+  border-bottom: 1px solid var(--card-stroke);
 }
 
 .hero-content {
@@ -16,9 +19,10 @@
 
 .hero h1 {
   font-size: 3.5rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 1.5rem;
   line-height: 1.2;
+  letter-spacing: 0.3px;
 }
 
 .hero-subtitle {
@@ -26,6 +30,7 @@
   margin-bottom: 3rem;
   opacity: 0.9;
   line-height: 1.6;
+  color: var(--text-1);
 }
 
 .hero-buttons {
@@ -37,36 +42,38 @@
 
 .btn {
   padding: 1rem 2rem;
-  border-radius: 8px;
+  border-radius: 10px;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  border: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease;
+  border: 1px solid rgba(255,255,255,0.12);
   cursor: pointer;
   display: inline-block;
+  color: var(--text-0);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
 }
 
 .btn-primary {
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: white;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.2) inset;
 }
 
 .btn-primary:hover {
-  background-color: #45a049;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 10px 30px rgba(108, 140, 255, 0.35);
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: white;
-  border: 2px solid white;
+  color: var(--text-0);
+  border: 1px solid var(--card-stroke);
 }
 
 .btn-secondary:hover {
-  background-color: white;
-  color: #667eea;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-0);
   transform: translateY(-2px);
 }
 
@@ -78,14 +85,14 @@
 
 .features {
   padding: 6rem 0;
-  background-color: #f8f9fa;
+  background-color: transparent;
 }
 
 .features h2 {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 3rem;
-  color: #333;
+  color: var(--text-0);
 }
 
 .features-grid {
@@ -95,44 +102,49 @@
 }
 
 .feature-card {
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: var(--shadow-1);
+  transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+  border: 1px solid var(--card-stroke);
+  backdrop-filter: blur(var(--glass-blur));
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  border-color: rgba(255,255,255,0.2);
 }
 
 .feature-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
+  color: var(--accent);
 }
 
 .feature-card h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--text-0);
 }
 
 .feature-card p {
-  color: #666;
+  color: var(--muted);
   line-height: 1.6;
 }
 
 .how-it-works {
   padding: 6rem 0;
-  background: white;
+  background: transparent;
 }
 
 .how-it-works h2 {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 3rem;
-  color: #333;
+  color: var(--text-0);
 }
 
 .steps {
@@ -149,7 +161,7 @@
 .step-number {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: white;
   border-radius: 50%;
   display: flex;
@@ -163,11 +175,11 @@
 .step h3 {
   font-size: 1.3rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--text-0);
 }
 
 .step p {
-  color: #666;
+  color: var(--muted);
   line-height: 1.6;
 }
 
