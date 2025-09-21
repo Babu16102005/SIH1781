@@ -414,3 +414,59 @@
     font-size: 1rem;
   }
 }
+
+/* Loading and Error States */
+.loading-state, .error-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.loading-state h1, .error-state h1 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.loading-state p, .error-state p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.loading-state .loading-spinner {
+  font-size: 1.2rem;
+  color: #4CAF50;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.error-state .btn {
+  margin: 0 0.5rem;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  color: white;
+}
+
+.loading-overlay .loading-spinner {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.loading-overlay p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}

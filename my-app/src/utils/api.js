@@ -70,4 +70,10 @@ export const healthAPI = {
   check: () => api.get('/health'),
 }
 
+export const videoAPI = {
+  getCareerVideos: (careerTitle) => api.get(`/videos/career/${encodeURIComponent(careerTitle)}`),
+  getSkillVideos: (skillName) => api.get(`/videos/skill/${encodeURIComponent(skillName)}`),
+  getTrendingVideos: () => api.get('/videos/trending'),
+}
+
 export default api

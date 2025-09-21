@@ -8,61 +8,42 @@ const AptitudeTest = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({})
   const [loading, setLoading] = useState(false)
+  const [loadingQuestions, setLoadingQuestions] = useState(true)
   const [testCompleted, setTestCompleted] = useState(false)
   const [scores, setScores] = useState(null)
-
-  // Static question bank (will be shuffled into state on mount)
-  const questionBank = [
-    {
-      id: 1,
-      category: "logical_reasoning",
-      question: "If all roses are flowers and some flowers are red, which of the following must be true?",
-      options: ["All roses are red", "Some roses are red", "Some red things are roses", "None of the above"],
-      correct: 2
-    },
-    {
-      id: 2,
-      category: "numerical_ability",
-      question: "What is 25% of 200?",
-      options: ["40", "50", "60", "75"],
-      correct: 1
-    },
-    {
-      id: 3,
-      category: "verbal_ability",
-      question: "Choose the word that is most similar in meaning to 'ABUNDANT':",
-      options: ["Scarce", "Plentiful", "Rare", "Limited"],
-      correct: 1
-    },
-    {
-      id: 4,
-      category: "spatial_reasoning",
-      question: "If you fold a square piece of paper in half twice and cut a small triangle from the corner, how many holes will you have when you unfold it?",
-      options: ["1", "2", "4", "8"],
-      correct: 2
-    },
-    {
-      id: 5,
-      category: "analytical_thinking",
-      question: "A sequence of numbers follows the pattern: 2, 6, 12, 20, 30. What is the next number?",
-      options: ["40", "42", "44", "48"],
-      correct: 1
-    }
-  ]
-
   const [questions, setQuestions] = useState([])
+  const [error, setError] = useState(null)
 
-  // Shuffle questions once on mount
+  // Fetch questions from backend on component mount
   useEffect(() => {
-    const shuffled = [...questionBank]
-      .map(q => ({ ...q }))
-      .sort(() => Math.random() - 0.5)
-    setQuestions(shuffled)
-    setCurrentQuestion(0)
-    setAnswers({})
-    setTestCompleted(false)
-    setScores(null)
+    fetchQuestions()
   }, [])
+
+  const fetchQuestions = async () => {
+    try {
+      setLoadingQuestions(true)
+      setError(null)
+      
+      const response = await axios.get('http://localhost:8000/api/questions/aptitude')
+      const fetchedQuestions = response.data.questions
+      
+      // Shuffle questions
+      const shuffled = [...fetchedQuestions]
+        .map(q => ({ ...q }))
+        .sort(() => Math.random() - 0.5)
+      
+      setQuestions(shuffled)
+      setCurrentQuestion(0)
+      setAnswers({})
+      setTestCompleted(false)
+      setScores(null)
+    } catch (error) {
+      console.error('Error fetching questions:', error)
+      setError('Failed to load questions. Please try again.')
+    } finally {
+      setLoadingQuestions(false)
+    }
+  }
 
   const handleAnswerSelect = (questionId, answerIndex) => {
     setAnswers({
@@ -88,17 +69,34 @@ const AptitudeTest = () => {
   const submitTest = async () => {
     setLoading(true)
     try {
+      // Get auth token from localStorage
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('Authentication token not found')
+      }
+
       const response = await axios.post('http://localhost:8000/api/assessments', {
         assessment_type: 'aptitude',
         questions: questions,
         answers: answers
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       })
       
       setScores(response.data.scores)
       setTestCompleted(true)
     } catch (error) {
       console.error('Error submitting test:', error)
-      alert('Error submitting test. Please try again.')
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please log in again.')
+      } else if (error.response?.status === 422) {
+        setError('Invalid test data. Please try again.')
+      } else {
+        setError('Error submitting test. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -108,6 +106,46 @@ const AptitudeTest = () => {
     if (score >= 80) return '#4CAF50'
     if (score >= 60) return '#FF9800'
     return '#F44336'
+  }
+
+  // Loading questions state
+  if (loadingQuestions) {
+    return (
+      <div className="aptitude-test">
+        <div className="container">
+          <div className="loading-state">
+            <div className="loading-spinner">Loading questions...</div>
+            <p>Please wait while we prepare your aptitude test.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="aptitude-test">
+        <div className="container">
+          <div className="error-state">
+            <h1>Error</h1>
+            <p>{error}</p>
+            <button 
+              className="btn btn-primary"
+              onClick={fetchQuestions}
+            >
+              Try Again
+            </button>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => window.location.href = '/dashboard'}
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (testCompleted && scores) {
@@ -224,7 +262,8 @@ const AptitudeTest = () => {
 
         {loading && (
           <div className="loading-overlay">
-            <div className="loading-spinner">Processing your results...</div>
+            <div className="loading-spinner">Processing your submission...</div>
+            <p>Please wait while we calculate your scores.</p>
           </div>
         )}
       </div>
