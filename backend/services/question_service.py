@@ -4,7 +4,7 @@ import os
 
 # Configure Gemini API
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-print("GEMINI_API_KEY:", os.getenv("GEMINI_API_KEY"))
+# print("GEMINI_API_KEY:", os.getenv("GEMINI_API_KEY"))
 def get_ai_generated_questions(assessment_type: str) -> List[Dict]:
     """
     Generate dynamic questions from AI based on assessment type.
@@ -19,7 +19,7 @@ def get_ai_generated_questions(assessment_type: str) -> List[Dict]:
     - category (string: logical_reasoning, numerical_ability, etc.)
     """
 
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(prompt)
 
     try:
