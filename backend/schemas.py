@@ -5,6 +5,7 @@ from datetime import datetime
 # User schemas
 class UserCreate(BaseModel):
     email: EmailStr
+    password: str
     full_name: str
     age_range: Optional[str] = None
     current_job_role: Optional[str] = None
@@ -98,7 +99,7 @@ class VideoRecommendation(BaseModel):
 # Login schema
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: Optional[str] = None
+    password: str
 
 class LoginResponse(BaseModel):
     access_token: str
