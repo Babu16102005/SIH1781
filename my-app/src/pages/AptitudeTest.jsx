@@ -9,8 +9,10 @@ const AptitudeTest = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({})
   const [loading, setLoading] = useState(false)
+  const [loadingQuestions, setLoadingQuestions] = useState(true)
   const [testCompleted, setTestCompleted] = useState(false)
   const [scores, setScores] = useState(null)
+<<<<<<< HEAD
 
   // Fetch questions dynamically from backend
   useEffect(() => {
@@ -47,6 +49,41 @@ const AptitudeTest = () => {
 
     fetchQuestions()
   }, [token])
+=======
+  const [questions, setQuestions] = useState([])
+  const [error, setError] = useState(null)
+
+  // Fetch questions from backend on component mount
+  useEffect(() => {
+    fetchQuestions()
+  }, [])
+>>>>>>> d2d4d0d689cd47f2c044669167fb4279616b5b83
+
+  const fetchQuestions = async () => {
+    try {
+      setLoadingQuestions(true)
+      setError(null)
+      
+      const response = await axios.get('http://localhost:8000/api/questions/aptitude')
+      const fetchedQuestions = response.data.questions
+      
+      // Shuffle questions
+      const shuffled = [...fetchedQuestions]
+        .map(q => ({ ...q }))
+        .sort(() => Math.random() - 0.5)
+      
+      setQuestions(shuffled)
+      setCurrentQuestion(0)
+      setAnswers({})
+      setTestCompleted(false)
+      setScores(null)
+    } catch (error) {
+      console.error('Error fetching questions:', error)
+      setError('Failed to load questions. Please try again.')
+    } finally {
+      setLoadingQuestions(false)
+    }
+  }
 
   const handleAnswerSelect = (questionId, answerIndex) => {
     setAnswers({
@@ -70,6 +107,7 @@ const AptitudeTest = () => {
   const submitTest = async () => {
     setLoading(true)
     try {
+<<<<<<< HEAD
       const response = await axios.post(
         'http://localhost:8000/api/assessments',
         {
@@ -82,11 +120,36 @@ const AptitudeTest = () => {
         }
       )
 
+=======
+      // Get auth token from localStorage
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('Authentication token not found')
+      }
+
+      const response = await axios.post('http://localhost:8000/api/assessments', {
+        assessment_type: 'aptitude',
+        questions: questions,
+        answers: answers
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+>>>>>>> d2d4d0d689cd47f2c044669167fb4279616b5b83
       setScores(response.data.scores)
       setTestCompleted(true)
     } catch (error) {
       console.error('Error submitting test:', error)
-      alert('Error submitting test. Please try again.')
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please log in again.')
+      } else if (error.response?.status === 422) {
+        setError('Invalid test data. Please try again.')
+      } else {
+        setError('Error submitting test. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -98,8 +161,49 @@ const AptitudeTest = () => {
     return '#F44336'
   }
 
+<<<<<<< HEAD
   if (loading && questions.length === 0) {
     return <div className="aptitude-test">Loading questions...</div>
+=======
+  // Loading questions state
+  if (loadingQuestions) {
+    return (
+      <div className="aptitude-test">
+        <div className="container">
+          <div className="loading-state">
+            <div className="loading-spinner">Loading questions...</div>
+            <p>Please wait while we prepare your aptitude test.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="aptitude-test">
+        <div className="container">
+          <div className="error-state">
+            <h1>Error</h1>
+            <p>{error}</p>
+            <button 
+              className="btn btn-primary"
+              onClick={fetchQuestions}
+            >
+              Try Again
+            </button>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => window.location.href = '/dashboard'}
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+>>>>>>> d2d4d0d689cd47f2c044669167fb4279616b5b83
   }
 
   if (testCompleted && scores) {
@@ -227,7 +331,8 @@ const AptitudeTest = () => {
 
         {loading && (
           <div className="loading-overlay">
-            <div className="loading-spinner">Processing your results...</div>
+            <div className="loading-spinner">Processing your submission...</div>
+            <p>Please wait while we calculate your scores.</p>
           </div>
         )}
       </div>

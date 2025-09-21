@@ -5,6 +5,7 @@ from datetime import datetime
 # User schemas
 class UserCreate(BaseModel):
     email: EmailStr
+    password: str
     full_name: str
     age_range: Optional[str] = None
     current_job_role: Optional[str] = None
@@ -73,16 +74,32 @@ class CareerRecommendationResponse(BaseModel):
     career_progression_path: Dict[str, Any]
     skill_development_plan: Dict[str, Any]
     market_trend_analysis: Dict[str, Any]
+    video_recommendations: List[Dict[str, Any]]
     rationale: str
     generated_at: datetime
     
     class Config:
         from_attributes = True
 
+# Video recommendation schemas
+class VideoRecommendation(BaseModel):
+    video_id: str
+    title: str
+    description: str
+    thumbnail: str
+    channel_title: str
+    published_at: str
+    url: str
+    duration: str
+    view_count: int
+    like_count: Optional[int] = 0
+    skill: Optional[str] = None
+    category: Optional[str] = None
+
 # Login schema
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: Optional[str] = None
+    password: str
 
 class LoginResponse(BaseModel):
     access_token: str

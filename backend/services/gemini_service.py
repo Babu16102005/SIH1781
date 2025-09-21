@@ -26,6 +26,10 @@ class GeminiService:
                     yield chunk
                 return
 
+            if not prompt or not prompt.strip():
+                yield "Please provide a valid question or message."
+                return
+
             stream = self.model.generate_content(prompt, stream=True)
             for event in stream:
                 # Each event may contain text; yield as soon as available
@@ -33,8 +37,9 @@ class GeminiService:
                 if text:
                     yield text
         except Exception as e:
+            logging.error(f"Error in stream_chat: {e}")
             # Graceful degradation: send a short error message to the client
-            yield "[Error generating response]"
+            yield f"[Error generating response: {str(e)[:100]}]"
     
     def analyze_aptitude_results(self, aptitude_scores: Dict[str, float]) -> Dict[str, Any]:
         """Analyze aptitude test results using Gemini AI"""
@@ -63,15 +68,18 @@ class GeminiService:
             if self.model is None:
                 raise RuntimeError("Gemini model not configured; using fallback.")
             response = self.model.generate_content(prompt)
-            return json.loads(response.text)
+            if not response.text:
+                raise ValueError("Empty response from Gemini API")
+            
+            # Parse and validate JSON response
+            result = json.loads(response.text)
+            return self._validate_aptitude_analysis(result)
+        except (json.JSONDecodeError, ValueError) as e:
+            logging.error(f"Failed to parse Gemini response: {e}")
+            return self._get_fallback_aptitude_analysis()
         except Exception as e:
-            return {
-                "strengths": ["Analytical thinking", "Problem solving"],
-                "improvement_areas": ["Communication", "Time management"],
-                "suitable_careers": ["Technology", "Engineering", "Data Science"],
-                "recommended_roles": ["Software Developer", "Data Analyst", "Systems Engineer"],
-                "analysis_summary": "Strong analytical abilities with potential in technical fields"
-            }
+            logging.error(f"Error in analyze_aptitude_results: {e}")
+            return self._get_fallback_aptitude_analysis()
     
     def generate_career_recommendations(
         self, 
@@ -133,9 +141,17 @@ class GeminiService:
             if self.model is None:
                 raise RuntimeError("Gemini model not configured; using fallback.")
             response = self.model.generate_content(prompt)
-            return json.loads(response.text)
+            if not response.text:
+                raise ValueError("Empty response from Gemini API")
+            
+            # Parse and validate JSON response
+            result = json.loads(response.text)
+            return self._validate_career_recommendations(result)
+        except (json.JSONDecodeError, ValueError) as e:
+            logging.error(f"Failed to parse Gemini response: {e}")
+            return self.get_fallback_recommendations(user_profile, aptitude_scores, interest_scores)
         except Exception as e:
-            # Fallback recommendations
+            logging.error(f"Error in generate_career_recommendations: {e}")
             return self.get_fallback_recommendations(user_profile, aptitude_scores, interest_scores)
     
     def get_fallback_recommendations(
@@ -209,12 +225,79 @@ class GeminiService:
             if self.model is None:
                 raise RuntimeError("Gemini model not configured; using fallback.")
             response = self.model.generate_content(prompt)
-            return json.loads(response.text)
+            if not response.text:
+                raise ValueError("Empty response from Gemini API")
+            
+            # Parse and validate JSON response
+            result = json.loads(response.text)
+            return self._validate_skill_gaps_analysis(result)
+        except (json.JSONDecodeError, ValueError) as e:
+            logging.error(f"Failed to parse Gemini response: {e}")
+            return self._get_fallback_skill_gaps()
         except Exception as e:
-            return {
-                "missing_skills": ["Advanced Programming", "System Design"],
-                "skills_to_improve": ["Communication", "Leadership"],
-                "learning_recommendations": ["Take online courses", "Join professional groups"],
-                "priority_order": ["Advanced Programming", "System Design", "Communication"],
-                "estimated_timeline": "6-12 months"
-            }
+            logging.error(f"Error in analyze_skill_gaps: {e}")
+            return self._get_fallback_skill_gaps()
+    
+    def _validate_aptitude_analysis(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate and ensure proper structure for aptitude analysis response"""
+        required_keys = ["strengths", "improvement_areas", "suitable_careers", "recommended_roles", "analysis_summary"]
+        
+        for key in required_keys:
+            if key not in data:
+                data[key] = []
+            elif not isinstance(data[key], list) and key != "analysis_summary":
+                data[key] = [str(data[key])] if data[key] else []
+        
+        return data
+    
+    def _validate_career_recommendations(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate and ensure proper structure for career recommendations response"""
+        required_keys = ["recommended_careers", "career_progression_path", "skill_development_plan", 
+                        "market_trend_analysis", "rationale"]
+        
+        for key in required_keys:
+            if key not in data:
+                if key == "recommended_careers":
+                    data[key] = []
+                elif key == "rationale":
+                    data[key] = "No rationale provided"
+                else:
+                    data[key] = {}
+        
+        return data
+    
+    def _validate_skill_gaps_analysis(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate and ensure proper structure for skill gaps analysis response"""
+        required_keys = ["missing_skills", "skills_to_improve", "learning_recommendations", 
+                        "priority_order", "estimated_timeline"]
+        
+        for key in required_keys:
+            if key not in data:
+                if key == "estimated_timeline":
+                    data[key] = "6-12 months"
+                else:
+                    data[key] = []
+            elif not isinstance(data[key], list) and key != "estimated_timeline":
+                data[key] = [str(data[key])] if data[key] else []
+        
+        return data
+    
+    def _get_fallback_aptitude_analysis(self) -> Dict[str, Any]:
+        """Get fallback aptitude analysis when API fails"""
+        return {
+            "strengths": ["Analytical thinking", "Problem solving"],
+            "improvement_areas": ["Communication", "Time management"],
+            "suitable_careers": ["Technology", "Engineering", "Data Science"],
+            "recommended_roles": ["Software Developer", "Data Analyst", "Systems Engineer"],
+            "analysis_summary": "Strong analytical abilities with potential in technical fields"
+        }
+    
+    def _get_fallback_skill_gaps(self) -> Dict[str, Any]:
+        """Get fallback skill gaps analysis when API fails"""
+        return {
+            "missing_skills": ["Advanced Programming", "System Design"],
+            "skills_to_improve": ["Communication", "Leadership"],
+            "learning_recommendations": ["Take online courses", "Join professional groups"],
+            "priority_order": ["Advanced Programming", "System Design", "Communication"],
+            "estimated_timeline": "6-12 months"
+        }
