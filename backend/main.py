@@ -1,11 +1,14 @@
 from fastapi import FastAPI, HTTPException, Depends, status
+from routes.assessment_routes import router as assessment_router
 from fastapi.responses import StreamingResponse
+from fastapi import APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 import uvicorn
 from dotenv import load_dotenv
 import os
+
 
 from database import get_db, engine, Base
 from models import User, Assessment, CareerRecommendation, SkillEvaluation
@@ -35,9 +38,9 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],
+    allow_origins=["http://localhost:3000", "http://localhost:5174", "http://localhost:5173", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -96,7 +99,7 @@ async def get_assessment(
 ):
     assessment_service = AssessmentService(db)
     return assessment_service.get_assessment(assessment_id, current_user.id)
-
+app.include_router(assessment_router, prefix="/api")
 # List assessments for current user (used by dashboard)
 @app.get("/api/assessments", response_model=list[AssessmentResponse])
 async def list_assessments(

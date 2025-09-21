@@ -1,6 +1,6 @@
 .recommendations {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: transparent;
   padding: 2rem 0;
 }
 
@@ -22,18 +22,18 @@
 
 .loading-state {
   font-size: 1.2rem;
-  color: #666;
+  color: var(--muted);
 }
 
 .no-recommendations h1 {
   font-size: 2.5rem;
-  color: #333;
+  color: var(--text-0);
   margin-bottom: 1rem;
 }
 
 .no-recommendations p {
   font-size: 1.2rem;
-  color: #666;
+  color: var(--muted);
   margin-bottom: 2rem;
 }
 
@@ -44,13 +44,13 @@
 
 .recommendations-header h1 {
   font-size: 2.5rem;
-  color: #333;
+  color: var(--text-0);
   margin-bottom: 1rem;
 }
 
 .recommendations-header p {
   font-size: 1.2rem;
-  color: #666;
+  color: var(--muted);
   margin-bottom: 2rem;
 }
 
@@ -63,14 +63,16 @@
 
 .btn {
   padding: 1rem 2rem;
-  border-radius: 8px;
+  border-radius: 10px;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  border: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  transition: transform 220ms ease, box-shadow 220ms ease, background 220ms ease;
+  border: 1px solid rgba(255,255,255,0.12);
   cursor: pointer;
   display: inline-block;
+  color: var(--text-0);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
 }
 
 .btn:disabled {
@@ -79,22 +81,21 @@
 }
 
 .btn-primary {
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #45a049;
   transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(108, 140, 255, 0.35);
 }
 
 .btn-secondary {
-  background-color: #6c757d;
-  color: white;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  color: var(--text-0);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #5a6268;
   transform: translateY(-2px);
 }
 
@@ -109,10 +110,12 @@
 .progression-section,
 .development-section,
 .rationale-section {
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-1);
+  border: 1px solid var(--card-stroke);
+  backdrop-filter: blur(var(--glass-blur));
 }
 
 .overview-section h2,
@@ -121,7 +124,7 @@
 .development-section h2,
 .rationale-section h2 {
   font-size: 1.8rem;
-  color: #333;
+  color: var(--text-0);
   margin-bottom: 2rem;
 }
 
@@ -132,16 +135,16 @@
 }
 
 .overview-card {
-  background: #f8f9fa;
+  background: rgba(255,255,255,0.03);
   padding: 2rem;
   border-radius: 8px;
   text-align: center;
-  border: 2px solid #e1e5e9;
+  border: 1px solid var(--card-stroke);
 }
 
 .overview-card h3 {
   font-size: 1.1rem;
-  color: #666;
+  color: var(--muted);
   margin-bottom: 1rem;
 }
 
@@ -154,7 +157,7 @@
 .score-value {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #4CAF50;
+  color: var(--success);
 }
 
 .careers-grid {
@@ -164,10 +167,10 @@
 }
 
 .career-card {
-  background: #f8f9fa;
+  background: rgba(255,255,255,0.03);
   padding: 2rem;
   border-radius: 8px;
-  border: 2px solid #e1e5e9;
+  border: 1px solid var(--card-stroke);
 }
 
 .career-header {
@@ -179,12 +182,12 @@
 
 .career-header h3 {
   font-size: 1.3rem;
-  color: #333;
+  color: var(--text-0);
   margin: 0;
 }
 
 .career-industry {
-  background: #667eea;
+  background: var(--brand);
   color: white;
   padding: 0.3rem 0.8rem;
   border-radius: 15px;
@@ -196,8 +199,9 @@
   justify-content: space-between;
   margin-bottom: 1rem;
   padding: 1rem;
-  background: white;
+  background: transparent;
   border-radius: 6px;
+  border: 1px solid var(--card-stroke);
 }
 
 .score-item {
@@ -209,16 +213,16 @@
 
 .score-item span:first-child {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--muted);
 }
 
 .score {
   font-weight: bold;
-  color: #4CAF50;
+  color: var(--success);
 }
 
 .career-description {
-  color: #666;
+  color: var(--muted);
   margin-bottom: 1rem;
   line-height: 1.5;
 }
@@ -229,7 +233,7 @@
 
 .detail-item {
   margin-bottom: 0.5rem;
-  color: #333;
+  color: var(--text-0);
 }
 
 .required-skills {
@@ -244,8 +248,8 @@
 }
 
 .skill-tag {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #0ea5e9;
+  color: white;
   padding: 0.3rem 0.8rem;
   border-radius: 15px;
   font-size: 0.9rem;
@@ -255,15 +259,16 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
-  background: white;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-1);
+  border: 1px solid var(--card-stroke);
 }
 
 .chart-container h3 {
   font-size: 1.3rem;
-  color: #333;
+  color: var(--text-0);
   margin-bottom: 1rem;
   text-align: center;
 }
@@ -275,15 +280,15 @@
 }
 
 .timeline-item {
-  background: #f8f9fa;
+  background: rgba(255,255,255,0.03);
   padding: 1.5rem;
   border-radius: 8px;
-  border: 2px solid #e1e5e9;
+  border: 1px solid var(--card-stroke);
 }
 
 .timeline-item h3 {
   font-size: 1.2rem;
-  color: #333;
+  color: var(--text-0);
   margin-bottom: 1rem;
 }
 
@@ -294,8 +299,8 @@
 
 .timeline-item li {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e1e5e9;
-  color: #666;
+  border-bottom: 1px solid var(--card-stroke);
+  color: var(--muted);
 }
 
 .timeline-item li:last-child {
@@ -309,15 +314,15 @@
 }
 
 .plan-item {
-  background: #f8f9fa;
+  background: rgba(255,255,255,0.03);
   padding: 1.5rem;
   border-radius: 8px;
-  border: 2px solid #e1e5e9;
+  border: 1px solid var(--card-stroke);
 }
 
 .plan-item h3 {
   font-size: 1.2rem;
-  color: #333;
+  color: var(--text-0);
   margin-bottom: 1rem;
 }
 
@@ -328,7 +333,7 @@
 }
 
 .skill-badge {
-  background: #4CAF50;
+  background: var(--success);
   color: white;
   padding: 0.3rem 0.8rem;
   border-radius: 15px;
@@ -342,8 +347,8 @@
 
 .plan-item li {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e1e5e9;
-  color: #666;
+  border-bottom: 1px solid var(--card-stroke);
+  color: var(--muted);
 }
 
 .plan-item li:last-child {
@@ -351,14 +356,14 @@
 }
 
 .rationale-content {
-  background: #f8f9fa;
+  background: rgba(255,255,255,0.03);
   padding: 2rem;
   border-radius: 8px;
-  border: 2px solid #e1e5e9;
+  border: 1px solid var(--card-stroke);
 }
 
 .rationale-content p {
-  color: #666;
+  color: var(--muted);
   line-height: 1.6;
   font-size: 1.1rem;
   margin: 0;

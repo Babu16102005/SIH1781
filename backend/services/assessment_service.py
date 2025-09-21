@@ -4,6 +4,9 @@ from schemas import AssessmentCreate, AssessmentResponse
 from typing import Dict, Any
 import json
 
+from services.gemini_service import GeminiService
+
+
 class AssessmentService:
     def __init__(self, db: Session):
         self.db = db
@@ -60,10 +63,13 @@ class AssessmentService:
         
         return scores
     
-    def calculate_aptitude_scores(self, answers: Dict[str, Any], questions: Dict[str, Any] | list | None) -> Dict[str, float]:
-        """Calculate aptitude test scores using provided question categories.
-        answers: mapping of question_id -> selected_option_index (int)
-        questions: list of question dicts with id, category, correct index
+    def calculate_aptitude_scores(
+        self,
+        answers: Dict[str, Any],
+        questions: Dict[str, Any] | list | None
+    ) -> Dict[str, float]:
+        """Calculate aptitude test scores using AI (Gemini).
+        Fallback to rule-based scoring if AI fails.
         """
         categories = {
             "logical_reasoning": 0.0,
@@ -74,10 +80,63 @@ class AssessmentService:
         }
 
         if not isinstance(questions, list):
-            # Fallback: no questions metadata; return zeros
             return categories
 
-        # Build quick lookup by id
+        # Build AI prompt
+        prompt = (
+            "You are an aptitude test evaluator. "
+            "Given questions, correct answers, and user answers, "
+            "evaluate performance in each category. "
+            "Return only a JSON object with category names as keys and scores (0-100) as values.\n\n"
+        )
+
+        for q in questions:
+            qid = str(q.get("id"))
+            cat = q.get("category")
+            correct = q.get("correct")
+            options = q.get("options", [])
+            user_answer = answers.get(qid, None)
+
+            prompt += f"Category: {cat}\n"
+            prompt += f"Question: {q.get('question')}\n"
+            if correct is not None and correct < len(options):
+                prompt += f"Correct Answer: {options[correct]}\n"
+            if user_answer is not None and user_answer < len(options):
+                prompt += f"User Answer: {options[user_answer]}\n\n"
+            else:
+                prompt += "User Answer: Not answered\n\n"
+
+        gemini = GeminiService()
+        try:
+            ai_output = gemini.chat(prompt)
+            scores = json.loads(ai_output)
+        except Exception as e:
+            # Fallback to rule-based calculation
+            scores = self._fallback_rule_based(answers, questions)
+
+        # Ensure all categories exist
+        for cat in categories.keys():
+            scores.setdefault(cat, 0.0)
+
+        return scores
+    
+    def _fallback_rule_based(
+        self,
+        answers: Dict[str, Any],
+        questions: Dict[str, Any] | list | None
+    ) -> Dict[str, float]:
+        """Fallback rule-based aptitude scoring if AI fails"""
+        categories = {
+            "logical_reasoning": 0.0,
+            "verbal_ability": 0.0,
+            "numerical_ability": 0.0,
+            "spatial_reasoning": 0.0,
+            "analytical_thinking": 0.0,
+        }
+
+        if not isinstance(questions, list):
+            return categories
+
         id_to_q = {str(q.get("id")): q for q in questions}
         total_by_cat: Dict[str, int] = {k: 0 for k in categories.keys()}
         correct_by_cat: Dict[str, int] = {k: 0 for k in categories.keys()}
@@ -97,7 +156,6 @@ class AssessmentService:
             if selected_index == q.get("correct"):
                 correct_by_cat[cat] += 1
 
-        # Convert to percentage per category
         for cat in categories.keys():
             total = total_by_cat[cat]
             correct = correct_by_cat[cat]
@@ -118,7 +176,6 @@ class AssessmentService:
             "social_work": 0
         }
         
-        # Sample scoring logic
         for question_id, answer in answers.items():
             if isinstance(answer, dict):
                 for category, score in answer.items():
@@ -137,7 +194,6 @@ class AssessmentService:
             "neuroticism": 0
         }
         
-        # Sample scoring logic
         for question_id, answer in answers.items():
             if isinstance(answer, dict):
                 for trait, score in answer.items():

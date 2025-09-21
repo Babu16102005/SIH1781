@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import axios from 'axios'
+import { assessmentAPI } from '../utils/api' // Using the project's API utility
 import './AptitudeTest.css'
 
 const AptitudeTest = () => {
-  useAuth()
+  const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({})
   const [loading, setLoading] = useState(false)
@@ -14,17 +16,13 @@ const AptitudeTest = () => {
   const [questions, setQuestions] = useState([])
   const [error, setError] = useState(null)
 
-  // Fetch questions from backend on component mount
-  useEffect(() => {
-    fetchQuestions()
-  }, [])
-
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
       setLoadingQuestions(true)
       setError(null)
       
-      const response = await axios.get('http://localhost:8000/api/questions/aptitude')
+      // NOTE: Assuming a method in your API utility for fetching aptitude questions.
+      const response = await assessmentAPI.getAptitudeQuestions()
       const fetchedQuestions = response.data.questions
       
       // Shuffle questions
@@ -43,7 +41,17 @@ const AptitudeTest = () => {
     } finally {
       setLoadingQuestions(false)
     }
-  }
+  }, [])
+
+  // Fetch questions or redirect if not authenticated.
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchQuestions()
+    } else {
+      // Redirect to login if not authenticated
+      navigate('/login', { replace: true, state: { from: '/aptitude-test' } })
+    }
+  }, [isAuthenticated, navigate, fetchQuestions])
 
   const handleAnswerSelect = (questionId, answerIndex) => {
     setAnswers({
@@ -68,22 +76,13 @@ const AptitudeTest = () => {
 
   const submitTest = async () => {
     setLoading(true)
+    setError(null)
     try {
-      // Get auth token from localStorage
-      const token = localStorage.getItem('token')
-      if (!token) {
-        throw new Error('Authentication token not found')
-      }
-
-      const response = await axios.post('http://localhost:8000/api/assessments', {
+      // The API utility should automatically attach the auth token.
+      const response = await assessmentAPI.create({
         assessment_type: 'aptitude',
         questions: questions,
         answers: answers
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
       })
       
       setScores(response.data.scores)
@@ -138,7 +137,7 @@ const AptitudeTest = () => {
             </button>
             <button 
               className="btn btn-secondary"
-              onClick={() => window.location.href = '/dashboard'}
+              onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard
             </button>
@@ -171,13 +170,13 @@ const AptitudeTest = () => {
             <div className="results-actions">
               <button 
                 className="btn btn-primary"
-                onClick={() => window.location.href = '/skill-evaluation'}
+                onClick={() => navigate('/skill-evaluation')}
               >
                 Continue to Skill Evaluation
               </button>
               <button 
                 className="btn btn-secondary"
-                onClick={() => window.location.href = '/dashboard'}
+                onClick={() => navigate('/dashboard')}
               >
                 Back to Dashboard
               </button>

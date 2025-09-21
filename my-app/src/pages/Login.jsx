@@ -23,12 +23,13 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    setError('')
+setLoading(true)
+setError('')
 
-    const result = await login(formData.email, formData.password)
-    
-    if (result.success) {
+// Pass both email and password to login
+const result = await login(formData.email, formData.password)
+
+if (result.success) {
       navigate('/dashboard')
     } else {
       setError(result.error)
@@ -56,6 +57,18 @@ const Login = () => {
               onChange={handleChange}
               required
               placeholder="Enter your email to get started"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              placeholder="Enter your password"
             />
           </div>
           
