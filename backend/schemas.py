@@ -74,7 +74,7 @@ class CareerRecommendationResponse(BaseModel):
     career_progression_path: Dict[str, Any]
     skill_development_plan: Dict[str, Any]
     market_trend_analysis: Dict[str, Any]
-    video_recommendations: List[Dict[str, Any]]
+    video_recommendations: Optional[List[Dict[str, Any]]] = None
     rationale: str
     generated_at: datetime
     

@@ -1,5 +1,11 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut 
+} from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -13,5 +19,10 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig)
-export const auth = getAuth(app)
-export const db = getFirestore(app)
+const auth = getAuth(app)
+const db = getFirestore(app)
+
+// Export the functions that AuthContext expects
+export const getFirebaseAuth = () => auth
+export { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut }
+export { auth, db }

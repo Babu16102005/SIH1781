@@ -4,7 +4,7 @@ import axios from 'axios'
 import './AptitudeTest.css'
 
 const AptitudeTest = () => {
-  const { user } = useAuth()
+  useAuth()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({})
   const [loading, setLoading] = useState(false)

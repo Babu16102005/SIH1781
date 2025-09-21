@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import './Chat.css'
 
 const Chat = () => {
-  const { isAuthenticated, user, token } = useAuth()
+  const { isAuthenticated, token } = useAuth()
   const navigate = useNavigate()
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -133,5 +133,3 @@ const Chat = () => {
 }
 
 export default Chat
-
-

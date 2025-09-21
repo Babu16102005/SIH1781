@@ -9,6 +9,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     full_name = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=True)  # Nullable for demo users
     age_range = Column(String(50))
     current_job_role = Column(String(255))
     industry = Column(String(255))

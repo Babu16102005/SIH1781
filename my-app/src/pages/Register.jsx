@@ -7,7 +7,6 @@ const Register = () => {
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
-    username: '',
     password: '',
     age_range: '',
     current_job_role: '',
@@ -61,15 +60,15 @@ const Register = () => {
 
 
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="full_name">Full Name</label>
             <input
               type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              id="full_name"
+              name="full_name"
+              value={formData.full_name}
               onChange={handleChange}
               required
-              placeholder="Choose a username"
+              placeholder="Enter your full name"
             />
           </div>
           <div className="form-group">
