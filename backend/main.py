@@ -1,5 +1,4 @@
 from fastapi import FastAPI, HTTPException, Depends, status
-from routes.assessment_routes import router as assessment_router
 from fastapi.responses import StreamingResponse
 from fastapi import APIRouter
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,18 +46,37 @@ app.add_middleware(
 security = HTTPBearer()
 
 # Dependency to get current user
+from firebase_admin import auth
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    user_service = UserService(db)
-    user = user_service.get_user_by_token(credentials.credentials)
-    if not user:
+    token = credentials.credentials
+    try:
+        decoded_token = auth.verify_id_token(token)
+        uid = decoded_token['uid']
+        email = decoded_token.get('email')
+
+        user_service = UserService(db)
+        user = user_service.get_user_by_firebase_uid(uid)
+
+        if not user:
+            # If user does not exist, create a new one
+            user_data = UserCreate(email=email, full_name=decoded_token.get('name', ''))
+            user = user_service.create_user_from_firebase(uid, user_data)
+        
+        return user
+    except auth.InvalidIdTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials"
         )
-    return user
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred: {e}"
+        )
 
 # User endpoints
 @app.post("/api/users/register", response_model=UserResponse)
@@ -99,7 +117,6 @@ async def get_assessment(
 ):
     assessment_service = AssessmentService(db)
     return assessment_service.get_assessment(assessment_id, current_user.id)
-app.include_router(assessment_router, prefix="/api")
 # List assessments for current user (used by dashboard)
 @app.get("/api/assessments", response_model=list[AssessmentResponse])
 async def list_assessments(

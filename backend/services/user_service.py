@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from typing import Optional
 from models import User
 from schemas import UserCreate, UserResponse, LoginRequest
 from passlib.context import CryptContext
@@ -63,20 +64,21 @@ class UserService:
         to_encode = data.copy()
         if expires_delta:
             expire = datetime.now(timezone.utc) + expires_delta
-        else:
             expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
     
-    def get_user_by_token(self, token: str) -> User | None:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            email: str = payload.get("sub")
-            if email is None:
-                return None
-        except JWTError:
-            return None
-        
-        user = self.db.query(User).filter(User.email == email).first()
-        return user
+    def get_user_by_firebase_uid(self, uid: str) -> Optional[User]:
+        return self.db.query(User).filter(User.firebase_uid == uid).first()
+
+    def create_user_from_firebase(self, uid: str, user_data: UserCreate) -> User:
+        db_user = User(
+            firebase_uid=uid,
+            email=user_data.email,
+            full_name=user_data.full_name
+        )
+        self.db.add(db_user)
+        self.db.commit()
+        self.db.refresh(db_user)
+        return db_user
