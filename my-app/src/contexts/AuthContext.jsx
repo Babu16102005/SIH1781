@@ -1,10 +1,12 @@
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useState, useEffect, useContext } from 'react'
 import { authAPI } from '../utils/api'
 import * as firebaseApi from '../firebase' // Import all exports from firebase.js
 
 const useFirebase = import.meta.env.VITE_USE_FIREBASE === 'true'
 
 const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
 
 // useAuth has been moved to a separate file in the hooks folder.
 

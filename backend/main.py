@@ -48,7 +48,8 @@ app.add_middleware(
 security = HTTPBearer()
 
 # Dependency to get current user
-import jwt as pyjwt
+from jose import jwt as jose_jwt
+from jose.exceptions import ExpiredSignatureError, JWTError
 from datetime import datetime, timezone
 
 async def get_current_user(
@@ -87,7 +88,7 @@ async def get_current_user(
         secret_key = os.getenv("SECRET_KEY")
         algorithm = os.getenv("ALGORITHM", "HS256")
         try:
-            payload = pyjwt.decode(token, secret_key, algorithms=[algorithm])
+            payload = jose_jwt.decode(token, secret_key, algorithms=[algorithm])
             email = payload.get("sub")
             if not email:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
@@ -96,9 +97,9 @@ async def get_current_user(
             if not user:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
             return user
-        except pyjwt.ExpiredSignatureError:
+        except ExpiredSignatureError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
-        except pyjwt.InvalidTokenError:
+        except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 # User endpoints

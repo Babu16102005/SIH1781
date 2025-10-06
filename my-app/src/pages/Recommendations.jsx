@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import axios from 'axios'
+import { recommendationAPI } from '../utils/api'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import './Recommendations.css'
 
@@ -17,7 +17,7 @@ const Recommendations = () => {
   const fetchRecommendations = async () => {
     setLoading(true)
     try {
-      const response = await axios.get('http://localhost:8000/api/recommendations')
+      const response = await recommendationAPI.getAll()
       if (response.data.length > 0) {
         setRecommendations(response.data[0]) // Get the latest recommendation
       }
@@ -31,7 +31,7 @@ const Recommendations = () => {
   const generateNewRecommendations = async () => {
     setGenerating(true)
     try {
-      const response = await axios.post('http://localhost:8000/api/recommendations/generate')
+      const response = await recommendationAPI.generate()
       setRecommendations(response.data)
     } catch (error) {
       console.error('Error generating recommendations:', error)

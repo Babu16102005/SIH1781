@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import axios from 'axios'
+import { skillAPI } from '../utils/api'
 import './SkillEvaluation.css'
 
 const SkillEvaluation = () => {
@@ -78,7 +78,7 @@ const SkillEvaluation = () => {
   const submitEvaluation = async () => {
     setLoading(true)
     try {
-      const response = await axios.post('http://localhost:8000/api/skills/evaluate', skillData)
+      const response = await skillAPI.evaluate(skillData)
       setResults(response.data)
       setEvaluationComplete(true)
     } catch (error) {
