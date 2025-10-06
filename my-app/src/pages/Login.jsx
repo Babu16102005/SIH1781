@@ -23,13 +23,26 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-setLoading(true)
-setError('')
+    // Basic client-side validation
+    const email = formData.email.trim()
+    const password = formData.password
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
-// Pass both email and password to login
-const result = await login(formData.email, formData.password)
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
 
-if (result.success) {
+    setLoading(true)
+    setError('')
+
+    const result = await login(email, password)
+
+    if (result.success) {
       navigate('/dashboard')
     } else {
       setError(result.error)
@@ -56,6 +69,7 @@ if (result.success) {
               value={formData.email}
               onChange={handleChange}
               required
+              autoComplete="email"
               placeholder="Enter your email to get started"
             />
           </div>
@@ -68,6 +82,7 @@ if (result.success) {
               value={formData.password}
               onChange={handleChange}
               required
+              autoComplete="current-password"
               placeholder="Enter your password"
             />
           </div>

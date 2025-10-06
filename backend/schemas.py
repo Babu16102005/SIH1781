@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field, EmailStr
+from pydantic.config import ConfigDict
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
@@ -98,14 +99,12 @@ class VideoRecommendation(BaseModel):
 
 # Login schema
 class LoginRequest(BaseModel):
-    # Accept either 'email' or legacy 'username' as an email address
-    email: EmailStr | None = None
-    username: EmailStr | None = Field(default=None, alias='username')
+    # Accept either 'email' or legacy 'username'; keep types lenient to avoid 422
+    email: str | None = None
+    username: str | None = Field(default=None, alias='username')
     password: str
 
-    class Config:
-        # Allow population by field name and by alias so either key works
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True, extra='ignore')
 
 class LoginResponse(BaseModel):
     access_token: str

@@ -48,7 +48,6 @@ app.add_middleware(
 security = HTTPBearer()
 
 # Dependency to get current user
-from firebase_admin import auth
 import jwt as pyjwt
 from datetime import datetime, timezone
 
@@ -61,6 +60,8 @@ async def get_current_user(
     user_service = UserService(db)
 
     if use_firebase:
+        # Import firebase admin auth lazily to avoid requiring the package when disabled
+        from firebase_admin import auth
         try:
             decoded_token = auth.verify_id_token(token)
             uid = decoded_token['uid']
