@@ -18,3 +18,14 @@ GEMINI_API_KEY=AIzaSyCGyQWcR5nz4ahfCtXb31URojU58WAxUJg
 DEBUG=True
 HOST=0.0.0.0
 PORT=8000
+
+# Auth mode
+# When true, backend uses Firebase Admin to validate tokens
+# When false, backend expects JWT tokens issued by this service
+USE_FIREBASE=false
+
+# Firebase Admin Credentials (required only if USE_FIREBASE=true)
+# Option 1: JSON string of the service account
+# FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account", ...}
+# Option 2: Path to the JSON file
+# FIREBASE_SERVICE_ACCOUNT_KEY_PATH=./firebase-service-account-key.json

@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await authAPI.login({
-        username: email,
+        email: email,
         password: password,
       })
       const { access_token, user: userData } = response.data

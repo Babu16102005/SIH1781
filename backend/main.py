@@ -22,8 +22,10 @@ from services.assessment_service import AssessmentService
 from services.recommendation_service import RecommendationService
 from services.skill_evaluation_service import SkillEvaluationService
 from services.gemini_service import GeminiService
+from firebase_admin_init import initialize_firebase_admin
 
 load_dotenv()
+initialize_firebase_admin() # Initialize Firebase Admin SDK only if USE_FIREBASE=true
 os.environ["GRPC_VERBOSITY"] = os.getenv("GRPC_VERBOSITY", "NONE")
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -47,36 +49,56 @@ security = HTTPBearer()
 
 # Dependency to get current user
 from firebase_admin import auth
+import jwt as pyjwt
+from datetime import datetime, timezone
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
     token = credentials.credentials
-    try:
-        decoded_token = auth.verify_id_token(token)
-        uid = decoded_token['uid']
-        email = decoded_token.get('email')
+    use_firebase = os.getenv("USE_FIREBASE", "false").lower() == "true"
+    user_service = UserService(db)
 
-        user_service = UserService(db)
-        user = user_service.get_user_by_firebase_uid(uid)
+    if use_firebase:
+        try:
+            decoded_token = auth.verify_id_token(token)
+            uid = decoded_token['uid']
+            email = decoded_token.get('email')
 
-        if not user:
-            # If user does not exist, create a new one
-            user_data = UserCreate(email=email, full_name=decoded_token.get('name', ''))
-            user = user_service.create_user_from_firebase(uid, user_data)
-        
-        return user
-    except auth.InvalidIdTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials"
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred: {e}"
-        )
+            user = user_service.get_user_by_firebase_uid(uid)
+            if not user:
+                user_data = UserCreate(email=email, full_name=decoded_token.get('name', ''))
+                user = user_service.create_user_from_firebase(uid, user_data)
+            return user
+        except auth.InvalidIdTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials"
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"An unexpected error occurred: {e}"
+            )
+    else:
+        # Fallback to JWT verification for non-Firebase auth
+        secret_key = os.getenv("SECRET_KEY")
+        algorithm = os.getenv("ALGORITHM", "HS256")
+        try:
+            payload = pyjwt.decode(token, secret_key, algorithms=[algorithm])
+            email = payload.get("sub")
+            if not email:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+            # Find user by email
+            user = db.query(User).filter(User.email == email).first()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+            return user
+        except pyjwt.ExpiredSignatureError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+        except pyjwt.InvalidTokenError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 # User endpoints
 @app.post("/api/users/register", response_model=UserResponse)

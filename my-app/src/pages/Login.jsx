@@ -72,19 +72,6 @@ if (result.success) {
             />
           </div>
           
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-          
           <button 
             type="submit" 
             className="btn btn-primary auth-btn"
