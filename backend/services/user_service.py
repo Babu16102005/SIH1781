@@ -45,7 +45,9 @@ class UserService:
         return UserResponse.model_validate(db_user)
     
     def authenticate_user(self, user_data: LoginRequest) -> dict:
-        user = self.db.query(User).filter(User.email == user_data.email).first()
+        # Support either 'email' or legacy 'username' carrying an email
+        login_email = user_data.email or user_data.username
+        user = self.db.query(User).filter(User.email == login_email).first()
 
         if not user or not pwd_context.verify(user_data.password, user.hashed_password):
             raise ValueError("Incorrect email or password")
