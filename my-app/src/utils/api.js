@@ -19,6 +19,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    } else if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+      // If no token and not on auth pages, redirect to login
+      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
     }
     return config
   },
@@ -29,15 +32,40 @@ api.interceptors.request.use(
 
 // Response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => {
-    return response
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+    
+    // If unauthorized and we haven't already tried to refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      
+      try {
+        // If using Firebase, try to refresh the token
+        if (import.meta.env.VITE_USE_FIREBASE === 'true') {
+          const { getAuth, onIdTokenChanged } = await import('firebase/auth')
+          const auth = getAuth()
+          
+          const user = auth.currentUser
+          if (user) {
+            const newToken = await user.getIdToken(true) // Force refresh
+            localStorage.setItem('token', newToken)
+            originalRequest.headers.Authorization = `Bearer ${newToken}`
+            return api(originalRequest)
+          }
+        }
+      } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError)
+        // Continue to redirect to login on refresh failure
+      }
+      
+      // For custom auth or if refresh failed
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      const returnUrl = window.location.pathname + window.location.search
+      window.location.href = `/login?redirect=${encodeURIComponent(returnUrl)}`
+      return Promise.reject(error)
     }
+    
     return Promise.reject(error)
   }
 )

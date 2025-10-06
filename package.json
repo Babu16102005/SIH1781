@@ -1,0 +1,19 @@
+{
+  "name": "sih1781",
+  "version": "1.0.0",
+  "description": "A comprehensive AI-driven career guidance system designed to help individuals make informed career decisions by holistically assessing their aptitude, interests, skills, and potential career trajectories.",
+  "main": "test-setup.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Babu16102005/SIH1781.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Babu16102005/SIH1781/issues"
+  },
+  "homepage": "https://github.com/Babu16102005/SIH1781#readme"
+}

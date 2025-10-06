@@ -15,32 +15,54 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!isAuthenticated || !token) return
-    fetchDashboardData()
+    if (!isAuthenticated || !token) {
+      setLoading(false)
+      return
+    }
+    
+    const controller = new AbortController()
+    const signal = controller.signal
+    
+    fetchDashboardData(signal)
+    
+    return () => {
+      controller.abort()
+    }
   }, [isAuthenticated, token])
   
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (signal) => {
     try {
-      // Fetch user's assessments and recommendations
+      setLoading(true)
+      
+      // Fetch user's assessments and recommendations with abort signal
       const [assessmentsRes, recommendationsRes] = await Promise.all([
-        assessmentAPI.getAll(),
-        recommendationAPI.getAll()
+        assessmentAPI.getAll({ signal }),
+        recommendationAPI.getAll({ signal })
       ])
       
-      setStats({
-        assessmentsCompleted: assessmentsRes.data.length,
-        recommendationsGenerated: recommendationsRes.data.length,
-        skillScore: 75, // This would come from skill evaluation
-        nextSteps: [
-          'Complete aptitude assessment',
-          'Evaluate your skills',
-          'Generate career recommendations'
-        ]
-      })
+      // Only update state if component is still mounted and not aborted
+      if (!signal?.aborted) {
+        setStats({
+          assessmentsCompleted: assessmentsRes?.data?.length || 0,
+          recommendationsGenerated: recommendationsRes?.data?.length || 0,
+          skillScore: 75, // This would come from skill evaluation
+          nextSteps: [
+            assessmentsRes?.data?.length === 0 ? 'Complete aptitude assessment' : 'Review your assessment results',
+            'Evaluate your skills',
+            recommendationsRes?.data?.length === 0 ? 'Generate career recommendations' : 'View your career recommendations'
+          ].filter(Boolean)
+        })
+      }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error)
+      // Ignore aborted requests
+      if (error.name !== 'AbortError' && error.name !== 'CanceledError') {
+        console.error('Error fetching dashboard data:', error)
+        // You might want to show an error message to the user here
+      }
     } finally {
-      setLoading(false)
+      if (!signal?.aborted) {
+        setLoading(false)
+      }
     }
   }
 
